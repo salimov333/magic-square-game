@@ -1,12 +1,13 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createPuzzle } from '../game/generators'
+import { currentElapsed, isSolvedBoard, placementCreatesMistake } from '../game/rules'
 
 const newProfile = (name) => ({
   id: crypto.randomUUID(), name: name.trim(), completedSizes: [], highScores: {}, totalTime: 0,
 })
 
-export const useGameStore = create(persist((set, get) => ({
+export const useGameStore = create(persist((set) => ({
   language: 'de',
   tutorialSeen: false,
   profiles: [newProfile('Spieler 1')],
@@ -27,11 +28,12 @@ export const useGameStore = create(persist((set, get) => ({
   }),
   startGame: (size) => {
     const puzzle = createPuzzle(size)
-    set({ game: { size, ...puzzle, selected: null, hints: 0, mistakes: 0, elapsed: 0, status: 'playing' } })
+    set({ game: { size, ...puzzle, selected: null, hints: 0, mistakes: 0, elapsed: 0, startedAt: Date.now(), status: 'playing' } })
   },
   tick: () => set((state) => state.game?.status === 'playing'
-    ? { game: { ...state.game, elapsed: state.game.elapsed + 1 } } : state),
-  selectNumber: (value) => set((state) => ({ game: { ...state.game, selected: state.game?.selected === value ? null : value } })),
+    ? { game: { ...state.game, elapsed: currentElapsed(state.game) } } : state),
+  selectNumber: (value) => set((state) => state.game
+    ? { game: { ...state.game, selected: state.game.selected === value ? null : value } } : state),
   placeNumber: (row, col, explicitValue) => set((state) => {
     const game = state.game
     if (!game || game.fixed.includes(row * game.size + col) || game.status !== 'playing') return state
@@ -42,9 +44,9 @@ export const useGameStore = create(persist((set, get) => ({
     board[row][col] = value
     const pool = game.pool.filter((item) => item !== value)
     if (previous != null) pool.push(previous)
-    const mistakes = game.mistakes + (value !== game.solution[row][col] ? 1 : 0)
-    const complete = board.every((line, r) => line.every((item, c) => item === game.solution[r][c]))
-    const updated = { ...game, board, pool, mistakes, selected: null, status: complete ? 'won' : 'playing' }
+    const mistakes = game.mistakes + (placementCreatesMistake(board, row, col) ? 1 : 0)
+    const complete = isSolvedBoard(board, pool)
+    const updated = { ...game, board, pool, mistakes, elapsed: currentElapsed(game), selected: null, status: complete ? 'won' : 'playing' }
     if (!complete) return { game: updated }
     return completeGameState(state, updated)
   }),
@@ -61,7 +63,9 @@ export const useGameStore = create(persist((set, get) => ({
     if (!game || game.status !== 'playing') return state
     let targetRow = row
     let targetCol = col
-    if (targetRow == null || game.fixed.includes(targetRow * game.size + targetCol)) {
+    if (targetRow == null
+      || game.fixed.includes(targetRow * game.size + targetCol)
+      || game.board[targetRow][targetCol] === game.solution[targetRow][targetCol]) {
       const empty = []
       game.board.forEach((line, r) => line.forEach((value, c) => {
         if (!game.fixed.includes(r * game.size + c) && value !== game.solution[r][c]) empty.push([r, c])
@@ -81,12 +85,20 @@ export const useGameStore = create(persist((set, get) => ({
     board[targetRow][targetCol] = correct
     let pool = game.pool.filter((value) => value !== correct)
     if (previous != null && previous !== correct) pool = [...pool, previous]
-    const complete = board.every((line, r) => line.every((item, c) => item === game.solution[r][c]))
-    const updated = { ...game, board, pool, hints: game.hints + 1, selected: null, status: complete ? 'won' : 'playing' }
+    const complete = isSolvedBoard(board, pool)
+    const updated = { ...game, board, pool, hints: game.hints + 1, elapsed: currentElapsed(game), selected: null, status: complete ? 'won' : 'playing' }
     return complete ? completeGameState(state, updated) : { game: updated }
   }),
-  resetGame: () => get().startGame(get().game.size),
-  leaveGame: () => set({ game: null }),
+  consumeRuleHint: () => set((state) => state.game?.status === 'playing'
+    ? { game: { ...state.game, hints: state.game.hints + 1 } } : state),
+  resetGame: () => set((state) => {
+    if (!state.game) return state
+    const profiles = recordAbandonedTime(state)
+    const puzzle = createPuzzle(state.game.size)
+    return { profiles, game: { size: state.game.size, ...puzzle, selected: null, hints: 0, mistakes: 0, elapsed: 0, startedAt: Date.now(), status: 'playing' } }
+  }),
+  leaveGame: () => set((state) => state.game
+    ? { profiles: recordAbandonedTime(state), game: null } : state),
 }), {
   name: 'magic-square-state',
   partialize: ({ language, tutorialSeen, profiles, activeProfileId }) => ({ language, tutorialSeen, profiles, activeProfileId }),
@@ -105,4 +117,13 @@ function completeGameState(state, game) {
     totalTime: profile.totalTime + game.elapsed,
   })
   return { game: { ...game, score }, profiles }
+}
+
+function recordAbandonedTime(state) {
+  if (state.game.status !== 'playing') return state.profiles
+  const elapsed = currentElapsed(state.game)
+  const activeId = state.activeProfileId || state.profiles[0]?.id
+  return state.profiles.map((profile) => profile.id === activeId
+    ? { ...profile, totalTime: profile.totalTime + elapsed }
+    : profile)
 }

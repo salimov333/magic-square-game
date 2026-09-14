@@ -19,7 +19,7 @@ export function Tutorial({ onStart, onSkip }) {
           <motion.div className={`demo-grid ${placed ? 'solved' : ''}`} animate={placed ? { scale: [1, 1.03, 1] } : {}}>
             {demo.map((value, index) => <div key={index} className={`demo-cell ${value ? '' : 'empty'}`} onDragOver={(e) => e.preventDefault()} onDrop={complete} onClick={!value ? complete : undefined}>{value || <span>{t('dragHere')}</span>}</div>)}
           </motion.div>
-          {!placed ? <motion.button draggable onDragEnd={complete} onClick={complete} className="number-token" animate={{ y: [0, -7, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>2</motion.button> : <motion.div className="success-note" initial={{ scale: 0 }} animate={{ scale: 1 }}><Check size={18} /> {t('tutorialDone')} <Sparkles size={17} /></motion.div>}
+          {!placed ? <motion.button draggable onClick={complete} className="number-token" animate={{ y: [0, -7, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>2</motion.button> : <motion.div className="success-note" initial={{ scale: 0 }} animate={{ scale: 1 }}><Check size={18} /> {t('tutorialDone')} <Sparkles size={17} /></motion.div>}
         </div>
       </section>
       <button className="primary-button tutorial-start" onClick={onStart} disabled={!placed}>{t('start')} <span>→</span></button>
