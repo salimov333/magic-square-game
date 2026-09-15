@@ -22,6 +22,7 @@ describe('player entry flow', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Hinzufügen' }))
 
     expect(screen.getByRole('heading', { name: 'Magisches Quadrat' })).not.toBeNull()
+    expect(screen.getByText('Was ist ein magisches Quadrat?')).not.toBeNull()
     expect(useGameStore.getState().profiles[0]).toMatchObject({ name: 'Salem', tutorialSeen: false })
   })
 

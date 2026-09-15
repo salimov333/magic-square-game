@@ -10,6 +10,7 @@ export function ProfileModal({ onClose, onSelect, onCreate, required = false }) 
   const { t } = useTranslation()
   const { profiles, activeProfileId, addProfile, selectProfile, deleteProfile } = useGameStore()
   const [name, setName] = useState('')
+  const [profileToDelete, setProfileToDelete] = useState(null)
   const choose = (id) => { selectProfile(id); onSelect?.(id); onClose?.() }
   const submit = (event) => {
     event.preventDefault()
@@ -27,8 +28,12 @@ export function ProfileModal({ onClose, onSelect, onCreate, required = false }) 
         <button className="profile-select" onClick={() => choose(profile.id)}>
           <span className="avatar"><UserRound size={20} /></span><span className="profile-data"><strong>{profile.name}</strong><small>{profile.completedSizes.length} {t('completed')} · {formatTime(profile.totalTime)}</small></span>
         </button>
-        {profiles.length > 1 && <button className="delete-action" onClick={() => deleteProfile(profile.id)} title={t('delete')} aria-label={`${t('delete')}: ${profile.name}`}><Trash2 size={17} /></button>}
+        {profiles.length > 1 && <button className="delete-action" onClick={() => setProfileToDelete(profile)} title={t('delete')} aria-label={`${t('delete')}: ${profile.name}`}><Trash2 size={17} /></button>}
       </div>)}</div>
+      {profileToDelete && <div className="delete-confirmation" role="alertdialog" aria-modal="true" aria-labelledby="delete-profile-title">
+        <div><strong id="delete-profile-title">{t('deleteConfirmTitle')}</strong><p>{t('deleteConfirmText')}</p><b className="delete-profile-name">{profileToDelete.name}</b></div>
+        <div className="delete-confirmation-actions"><button className="secondary-button" onClick={() => setProfileToDelete(null)}>{t('cancel')}</button><button className="danger-button" onClick={() => { deleteProfile(profileToDelete.id); setProfileToDelete(null) }}>{t('confirmDelete')}</button></div>
+      </div>}
       <form className="profile-form" onSubmit={submit}><input value={name} onChange={(e) => setName(e.target.value)} maxLength={24} placeholder={t('username')} autoFocus={required} /><button className="primary-button" disabled={!name.trim()}><Plus size={18} /> {t('add')}</button></form>
     </motion.section>
   </div>
