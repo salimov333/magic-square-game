@@ -4,22 +4,23 @@ import { createPuzzle } from '../game/generators'
 import { currentElapsed, validateBoard } from '../game/rules'
 
 const newProfile = (name) => ({
-  id: crypto.randomUUID(), name: name.trim(), completedSizes: [], highScores: {}, totalTime: 0,
+  id: crypto.randomUUID(), name: name.trim(), completedSizes: [], highScores: {}, totalTime: 0, tutorialSeen: false,
 })
 
 export const useGameStore = create(persist((set) => ({
   language: 'de',
-  tutorialSeen: false,
-  profiles: [newProfile('Spieler 1')],
+  profiles: [],
   activeProfileId: null,
   game: null,
 
   setLanguage: (language) => set({ language }),
-  finishTutorial: () => set({ tutorialSeen: true }),
-  addProfile: (name) => set((state) => {
+  finishTutorial: () => set((state) => ({ profiles: state.profiles.map((profile) =>
+    profile.id === state.activeProfileId ? { ...profile, tutorialSeen: true } : profile) })),
+  addProfile: (name) => {
     const profile = newProfile(name)
-    return { profiles: [...state.profiles, profile], activeProfileId: profile.id }
-  }),
+    set((state) => ({ profiles: [...state.profiles, profile], activeProfileId: profile.id }))
+    return profile.id
+  },
   selectProfile: (id) => set({ activeProfileId: id }),
   deleteProfile: (id) => set((state) => {
     if (state.profiles.length === 1) return state
@@ -117,14 +118,22 @@ export const useGameStore = create(persist((set) => ({
     ? { profiles: recordAbandonedTime(state), game: null } : state),
 }), {
   name: 'magic-square-state',
-  partialize: ({ language, tutorialSeen, profiles, activeProfileId }) => ({ language, tutorialSeen, profiles, activeProfileId }),
-  onRehydrateStorage: () => (state) => {
-    if (state && !state.activeProfileId && state.profiles[0]) state.activeProfileId = state.profiles[0].id
+  version: 2,
+  partialize: ({ language, profiles, activeProfileId }) => ({ language, profiles, activeProfileId }),
+  migrate: (persisted, version) => {
+    if (version >= 2) return persisted
+    const profiles = (persisted.profiles ?? [])
+      .filter((profile) => !(profile.name === 'Spieler 1'
+        && profile.completedSizes?.length === 0
+        && Object.keys(profile.highScores ?? {}).length === 0
+        && profile.totalTime === 0))
+      .map((profile) => ({ ...profile, tutorialSeen: true }))
+    return { ...persisted, profiles, activeProfileId: null }
   },
 }))
 
 function completeGameState(state, game) {
-  const score = Math.max(0, game.size * 1000 - game.elapsed * 2 - game.hints * 300 - game.mistakes * 100)
+  const score = Math.max(0, game.size * 1000 - game.elapsed - game.hints * 300 - game.mistakes * 100)
   const activeId = state.activeProfileId || state.profiles[0]?.id
   const profiles = state.profiles.map((profile) => profile.id !== activeId ? profile : {
     ...profile,

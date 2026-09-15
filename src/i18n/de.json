@@ -7,14 +7,18 @@
   "easy": "Einfach", "medium": "Mittel", "hard": "Schwer", "expert": "Experte", "grid": "Raster", "best": "Bestwert",
   "notPlayed": "Noch nicht gespielt", "progress": "Fortschritt", "completed": "abgeschlossen", "profile": "Profil",
   "profiles": "Spielerprofile", "newProfile": "Neues Profil", "username": "Benutzername", "add": "Hinzufügen", "delete": "Löschen",
+  "localPlayers": "Lokale Spieler", "chooseProfile": "Wer spielt?", "chooseSavedProfile": "Wähle deinen Namen oder erstelle ein neues Profil.", "createFirstProfile": "Gib einen Benutzernamen ein, um dein erstes Profil zu erstellen.",
   "cancel": "Abbrechen", "magicSum": "Magische Summe", "time": "Zeit", "hints": "Hinweise", "mistakes": "Fehler",
   "available": "Verfügbare Zahlen", "tapHint": "Zahl antippen und dann ein Feld wählen – oder ziehen. Vorgegebene Felder lassen sich leeren.", "reveal": "Feld aufdecken",
-  "rule": "Algorithmus-Regel", "ruleTitle": "Tipp zur Methode", "ruleOdd": "Bei ungeraden Größen startet die 1 oben in der Mitte. Gehe diagonal nach rechts oben; ist das Feld belegt, gehe eine Zeile nach unten.",
-  "ruleDoubly": "Bei durch vier teilbaren Größen werden die Zahlen der markierten Diagonalmuster gespiegelt.",
-  "ruleSingly": "Bei einfach geraden Größen werden vier ungerade Teilquadrate erzeugt und ausgewählte Spalten getauscht.",
+  "rule": "Algorithmus-Regel", "ruleTitle": "Tipp zur Methode", "ruleOddName": "Siam-Methode (De-la-Loubère-Methode) — Simon de la Loubère",
+  "ruleOdd": "Für ungerade Größen wie 3, 5 oder 7: Setze die 1 oben in die Mitte. Gehe für jede nächste Zahl diagonal eine Zeile nach oben und eine Spalte nach rechts. Verlässt du den Rand, setze auf der gegenüberliegenden Seite fort. Ist das Zielfeld bereits belegt, gehe stattdessen vom letzten Feld eine Zeile nach unten. Simon de la Loubère beschrieb diese indische kontinuierliche Methode 1691 nach seiner Rückkehr aus Siam.",
+  "ruleDoublyName": "Diagonale Inversion (Komplementmethode) — Überlagerungsprinzip von Narayana Pandit",
+  "ruleDoubly": "Für Größen, die durch 4 teilbar sind, etwa 4, 8 oder 12: Trage zuerst die Zahlen von 1 bis n² zeilenweise ein. Markiere in jedem 4×4-Block beide Diagonalen. Behalte die Zahlen auf dem Diagonalmuster und ersetze jede übrige Zahl x durch ihr Komplement n² + 1 − x. Dadurch erhalten alle Reihen, Spalten und Hauptdiagonalen dieselbe Summe. Das zugrunde liegende Überlagerungsprinzip wurde 1356 vom indischen Mathematiker Narayana Pandit beschrieben.",
+  "ruleSinglyName": "Strachey-Methode — Ralph Strachey",
+  "ruleSingly": "Für gerade Größen, die nicht durch 4 teilbar sind, etwa 6 oder 10: Teile das Raster in vier gleich große ungerade Quadrate. Erzeuge in jedem Teil mit der Siam-Methode dasselbe Grundmuster und addiere passende Vielfache der Teilfläche, damit alle Zahlen von 1 bis n² vorkommen. Tausche danach die vorgeschriebenen linken Spalten zwischen oberem und unterem Teil, die rechten Randspalten sowie zwei mittlere Felder. Diese Ralph Strachey zugeschriebene Konstruktion gleicht dadurch alle Summen aus.",
   "selectCell": "Wähle ein freies Feld für den Hinweis.", "check": "Quadrat prüfen", "fillAll": "Fülle zuerst alle Felder aus.",
   "checkFailed": "Das Quadrat ist noch nicht magisch.", "invalidRows": "Falsche Reihen", "invalidColumns": "Falsche Spalten", "invalidDiagonals": "Falsche Diagonalen",
   "emptyBoard": "Vorgegebene Felder leeren", "reset": "Neu starten", "back": "Zurück", "victory": "Quadrat vollendet!",
   "victoryText": "Alle Reihen, Spalten und Diagonalen sind im Gleichgewicht.", "score": "Punkte", "playAgain": "Nochmal spielen",
-  "mainMenu": "Hauptmenü", "formula": "Grundwert − Zeit − Hinweise − Fehler", "totalTime": "Gesamtspielzeit", "language": "Sprache"
+  "mainMenu": "Hauptmenü", "formula": "Grundwert − Sekunden − Hinweise − Fehler", "totalTime": "Gesamtspielzeit", "totalScore": "Gesamtpunktzahl", "allGrids": "aus allen Rastern", "language": "Sprache"
 }

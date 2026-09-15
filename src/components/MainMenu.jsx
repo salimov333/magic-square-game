@@ -9,16 +9,18 @@ import { useTranslation } from '../i18n'
 
 const difficulty = (n) => n <= 4 ? 'easy' : n <= 7 ? 'medium' : n <= 9 ? 'hard' : 'expert'
 
-export function MainMenu({ onStart }) {
+export function MainMenu({ onStart, onSelectProfile, onCreateProfile }) {
   const { t } = useTranslation()
   const [profilesOpen, setProfilesOpen] = useState(false)
   const profiles = useGameStore((state) => state.profiles)
   const activeId = useGameStore((state) => state.activeProfileId)
   const active = profiles.find((p) => p.id === activeId) || profiles[0]
+  if (!active) return null
   const completion = Math.round((active.completedSizes.length / 10) * 100)
+  const totalScore = Object.values(active.highScores).reduce((sum, score) => sum + score, 0)
   return <main className="menu-screen">
     <header><div className="brand"><Logo compact /><span>{t('title')}</span></div><div className="top-actions"><LanguageSwitcher /><button className="profile-button" onClick={() => setProfilesOpen(true)}><span className="avatar"><UserRound size={17} /></span>{active.name}<ChevronRight size={15} /></button></div></header>
-    <section className="menu-hero"><div><p className="eyebrow">{t('menuGreeting')}, {active.name}</p><h1>{t('chooseSize')}</h1><p>{t('chooseSizeHint')}</p></div><div className="progress-card"><div className="progress-ring" style={{ '--progress': `${completion * 3.6}deg` }}><span>{completion}%</span></div><div><small>{t('progress')}</small><strong>{active.completedSizes.length} / 10</strong><span>{t('completed')}</span></div></div></section>
+    <section className="menu-hero"><div><p className="eyebrow">{t('menuGreeting')}, {active.name}</p><h1>{t('chooseSize')}</h1><p>{t('chooseSizeHint')}</p></div><div className="menu-stats"><div className="total-score-card"><span className="score-trophy"><Trophy size={21} /></span><div><small>{t('totalScore')}</small><strong>{totalScore.toLocaleString()}</strong><span>{t('allGrids')}</span></div></div><div className="progress-card"><div className="progress-ring" style={{ '--progress': `${completion * 3.6}deg` }}><span>{completion}%</span></div><div><small>{t('progress')}</small><strong>{active.completedSizes.length} / 10</strong><span>{t('completed')}</span></div></div></div></section>
     <section className="size-grid">{Array.from({ length: 10 }, (_, i) => i + 3).map((size, index) => {
       const best = active.highScores[size]
       const done = active.completedSizes.includes(size)
@@ -27,6 +29,6 @@ export function MainMenu({ onStart }) {
       </motion.button>
     })}</section>
     <footer>SIAM · STRACHEY · DIAGONAL INVERSION</footer>
-    {profilesOpen && <ProfileModal onClose={() => setProfilesOpen(false)} />}
+    {profilesOpen && <ProfileModal onClose={() => setProfilesOpen(false)} onSelect={onSelectProfile} onCreate={onCreateProfile} />}
   </main>
 }

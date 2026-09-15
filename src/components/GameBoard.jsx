@@ -71,7 +71,7 @@ export function GameBoard({ onBack }) {
         <div className="hint-actions"><button onClick={() => revealHint(hintCell?.[0], hintCell?.[1])}><Eye size={18} /><span><strong>{t('reveal')}</strong><small>−300</small></span></button><button onClick={() => { consumeRuleHint(); setRuleOpen(true) }}><Lightbulb size={18} /><span><strong>{t('rule')}</strong><small>−300</small></span></button></div>
       </aside>
     </div>
-    <AnimatePresence>{ruleOpen && <div className="modal-backdrop" onMouseDown={() => setRuleOpen(false)}><motion.div className="rule-modal" initial={{ scale: .95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(e) => e.stopPropagation()}><span className="rule-icon"><Lightbulb /></span><h2>{t('ruleTitle')}</h2><p>{t(ruleKey)}</p><button className="primary-button" onClick={() => setRuleOpen(false)}>{t('next')}</button></motion.div></div>}</AnimatePresence>
+    <AnimatePresence>{ruleOpen && <div className="modal-backdrop" onMouseDown={() => setRuleOpen(false)}><motion.div className="rule-modal" initial={{ scale: .95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(e) => e.stopPropagation()}><span className="rule-icon"><Lightbulb /></span><h2>{t('ruleTitle')}</h2><strong className="rule-method">{t(`${ruleKey}Name`)}</strong><p>{t(ruleKey)}</p><button className="primary-button" onClick={() => setRuleOpen(false)}>{t('next')}</button></motion.div></div>}</AnimatePresence>
     {game.status === 'won' && <Victory t={t} game={game} onAgain={resetGame} onMenu={onBack} />}
   </main>
 }

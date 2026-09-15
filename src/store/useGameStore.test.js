@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { generateMagicSquare } from '../game/generators'
 import { useGameStore } from './useGameStore'
 
-const profile = { id: 'player', name: 'Player', completedSizes: [], highScores: {}, totalTime: 0 }
+const profile = { id: 'player', name: 'Player', completedSizes: [], highScores: {}, totalTime: 0, tutorialSeen: true }
 
 beforeEach(() => {
   localStorage.clear()
@@ -12,6 +12,14 @@ beforeEach(() => {
 })
 
 describe('game store', () => {
+  it('creates a new profile with its own unseen tutorial state', () => {
+    const id = useGameStore.getState().addProfile('New player')
+    expect(useGameStore.getState().activeProfileId).toBe(id)
+    expect(useGameStore.getState().profiles.find((item) => item.id === id)).toMatchObject({ name: 'New player', tutorialSeen: false })
+    useGameStore.getState().finishTutorial()
+    expect(useGameStore.getState().profiles.find((item) => item.id === id).tutorialSeen).toBe(true)
+  })
+
   it('waits for the check button and then accepts a different valid orientation', () => {
     const solution = generateMagicSquare(3)
     const rotated = solution[0].map((_, col) => solution.map((row) => row[col]).reverse())
@@ -93,5 +101,15 @@ describe('game store', () => {
     } })
     useGameStore.getState().leaveGame()
     expect(useGameStore.getState().profiles[0].totalTime).toBe(12)
+  })
+
+  it('deducts one point for every elapsed second', () => {
+    const solution = generateMagicSquare(3)
+    useGameStore.setState({ game: {
+      size: 3, solution, board: solution, fixed: [], pool: [], selected: null,
+      hints: 0, mistakes: 0, feedback: null, elapsed: 100, startedAt: Date.now(), status: 'playing',
+    } })
+    useGameStore.getState().checkSolution()
+    expect(useGameStore.getState().game.score).toBe(2900)
   })
 })

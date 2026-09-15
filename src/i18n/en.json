@@ -7,14 +7,18 @@
   "easy": "Easy", "medium": "Medium", "hard": "Hard", "expert": "Expert", "grid": "Grid", "best": "Best",
   "notPlayed": "Not played yet", "progress": "Progress", "completed": "completed", "profile": "Profile",
   "profiles": "Player profiles", "newProfile": "New profile", "username": "Username", "add": "Add", "delete": "Delete",
+  "localPlayers": "Local players", "chooseProfile": "Who is playing?", "chooseSavedProfile": "Choose your name or create a new profile.", "createFirstProfile": "Enter a username to create your first profile.",
   "cancel": "Cancel", "magicSum": "Magic sum", "time": "Time", "hints": "Hints", "mistakes": "Mistakes",
   "available": "Available numbers", "tapHint": "Tap a number then a cell – or drag it. Prefilled cells can be cleared.", "reveal": "Reveal cell",
-  "rule": "Algorithm rule", "ruleTitle": "Method hint", "ruleOdd": "For odd sizes, place 1 at the top middle. Move diagonally up-right; if occupied, move one row down.",
-  "ruleDoubly": "For sizes divisible by four, values in a repeating diagonal pattern are complemented.",
-  "ruleSingly": "For singly-even sizes, four odd sub-squares are generated and selected columns are exchanged.",
+  "rule": "Algorithm rule", "ruleTitle": "Method hint", "ruleOddName": "Siamese method (De la Loubère method) — Simon de la Loubère",
+  "ruleOdd": "For odd sizes such as 3, 5 or 7, place 1 in the top-middle cell. For each next number, move one row up and one column right. Wrap around to the opposite side when crossing an edge. If the target cell is occupied, move one row down from the previous cell instead. Simon de la Loubère described this Indian continuous method in 1691 after returning from Siam.",
+  "ruleDoublyName": "Diagonal inversion (complement method) — Narayana Pandit's superposition principle",
+  "ruleDoubly": "For sizes divisible by 4, such as 4, 8 or 12, first write 1 through n² in row order. Mark both diagonals inside every 4×4 block. Keep the values on that diagonal pattern and replace every other value x with its complement n² + 1 − x. This balances every row, column and main diagonal. The underlying superposition principle was described by the Indian mathematician Narayana Pandit in 1356.",
+  "ruleSinglyName": "Strachey method — Ralph Strachey",
+  "ruleSingly": "For even sizes not divisible by 4, such as 6 or 10, divide the grid into four equal odd-order squares. Build the same Siamese pattern in each quarter and add the required multiples of the quarter area so the values cover 1 through n². Then exchange the prescribed left columns between the upper and lower quarters, the right edge columns, and two central cells. This construction, attributed to Ralph Strachey, brings all sums into balance.",
   "selectCell": "Select a free cell for the hint.", "check": "Check square", "fillAll": "Fill every cell before checking.",
   "checkFailed": "The square is not magic yet.", "invalidRows": "Wrong rows", "invalidColumns": "Wrong columns", "invalidDiagonals": "Wrong diagonals",
   "emptyBoard": "Clear prefilled cells", "reset": "Restart", "back": "Back", "victory": "Square complete!",
   "victoryText": "Every row, column and diagonal is perfectly balanced.", "score": "Score", "playAgain": "Play again",
-  "mainMenu": "Main menu", "formula": "Base − time − hints − mistakes", "totalTime": "Total play time", "language": "Language"
+  "mainMenu": "Main menu", "formula": "Base − seconds − hints − mistakes", "totalTime": "Total play time", "totalScore": "Total score", "allGrids": "across all grids", "language": "Language"
 }

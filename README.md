@@ -7,8 +7,8 @@ A responsive, multilingual math puzzle built with React. Fill every free cell so
 - Dynamic boards from **3×3 through 12×12**
 - Correct generators for odd, doubly-even and singly-even orders
 - Drag and drop plus tap-first mobile input
-- Animated onboarding with an interactive 3×3 demonstration
-- Local player profiles, completion history, high scores and total play time
+- Per-player onboarding with an interactive 3×3 demonstration
+- Local player sign-in, completion history, high scores, combined score and total play time
 - Smart reveal and algorithm hints with explicit score penalties
 - Live row and column totals, timer, mistake tracking and celebration animation
 - German default UI, English and complete Arabic RTL support
@@ -64,24 +64,24 @@ The magic constant for a square of order `n` is:
 M = n(n² + 1) / 2
 ```
 
-### Odd orders — Siamese method
+### Odd orders — Siamese / De la Loubère method
 
-Used for 3, 5, 7, 9 and 11. Place `1` in the top-middle cell, then move diagonally up and right with wraparound. If the destination is occupied, move down one cell instead.
+Used for 3, 5, 7, 9 and 11. Place `1` in the top-middle cell, then move diagonally up and right with wraparound. If the destination is occupied, move down one cell instead. Simon de la Loubère described this Indian continuous method in 1691 after returning from Siam.
 
 ### Doubly-even orders — diagonal inversion
 
-Used for 4, 8 and 12. Fill the square sequentially, preserve values that belong to the repeating 4×4 diagonal pattern, and complement every other value with `n² + 1 - value`.
+Used for 4, 8 and 12. Fill the square sequentially, preserve values that belong to the repeating 4×4 diagonal pattern, and complement every other value with `n² + 1 - value`. Its underlying superposition principle is historically associated with Narayana Pandit's 1356 work.
 
 ### Singly-even orders — Strachey construction
 
-Used for 6 and 10. Generate an odd square of half the size, copy it into four quadrants with fixed offsets, then exchange the prescribed left and right columns and two central exception cells.
+Used for 6 and 10. Generate an odd square of half the size, copy it into four quadrants with fixed offsets, then exchange the prescribed left and right columns and two central exception cells. The construction is attributed to Ralph Strachey.
 
 Tests verify that every generated square contains each integer from `1` through `n²` exactly once and that all rows, columns and main diagonals equal `M` for every supported size.
 
 ## Scoring
 
 ```text
-score = max(0, n × 1000 − seconds × 2 − hints × 300 − mistakes × 100)
+score = max(0, n × 1000 − seconds − hints × 300 − mistakes × 100)
 ```
 
 The score is stored per player and grid size in browser `localStorage`. No registration or remote database is required.
