@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, render } from '@testing-library/react'
+import { cleanup, fireEvent, render } from '@testing-library/react'
 import { GameBoard } from './GameBoard'
 import { generateMagicSquare } from '../game/generators'
 import { useGameStore } from '../store/useGameStore'
@@ -21,6 +21,7 @@ describe('GameBoard', () => {
         selected: null,
         hints: 0,
         mistakes: 0,
+        feedback: null,
         elapsed: 0,
         startedAt: Date.now(),
         status: 'playing',
@@ -32,5 +33,10 @@ describe('GameBoard', () => {
     expect(container.querySelectorAll('.game-cell.prefilled')).toHaveLength(3)
     expect(container.querySelectorAll('.game-cell.fixed')).toHaveLength(0)
     expect(container.querySelector('.game-grid').style.getPropertyValue('--n')).toBe('3')
+    expect(container.querySelector('.check-button')).not.toBeNull()
+
+    fireEvent.click(container.querySelector('.game-cell.prefilled'))
+    expect(useGameStore.getState().game.fixed).toHaveLength(2)
+    expect(useGameStore.getState().game.pool).toHaveLength(7)
   })
 })

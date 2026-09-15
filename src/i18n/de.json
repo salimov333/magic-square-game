@@ -1,18 +1,20 @@
 {
   "title": "Magisches Quadrat", "tagline": "Jede Reihe. Jede Spalte. Dieselbe Summe.",
   "skip": "Tutorial überspringen", "next": "Weiter", "start": "Spiel starten", "tutorialTitle": "So funktioniert es",
-  "tutorialText": "Ziehe die Zahlen in die freien Felder. Jede Reihe, Spalte und Diagonale muss die magische Summe 15 ergeben.",
+  "tutorialText": "Fülle alle Felder und drücke dann auf Prüfen. Vorgegebene Zahlen kannst du anklicken und entfernen. Jede Reihe, Spalte und Diagonale muss die magische Summe 15 ergeben.",
   "tutorialDone": "Perfekt! Du hast das Prinzip verstanden.", "dragHere": "Hierher ziehen", "menuGreeting": "Willkommen zurück",
   "chooseSize": "Wähle deine Herausforderung", "chooseSizeHint": "Von einem schnellen Einstieg bis zur großen Meisterprüfung.",
   "easy": "Einfach", "medium": "Mittel", "hard": "Schwer", "expert": "Experte", "grid": "Raster", "best": "Bestwert",
   "notPlayed": "Noch nicht gespielt", "progress": "Fortschritt", "completed": "abgeschlossen", "profile": "Profil",
   "profiles": "Spielerprofile", "newProfile": "Neues Profil", "username": "Benutzername", "add": "Hinzufügen", "delete": "Löschen",
   "cancel": "Abbrechen", "magicSum": "Magische Summe", "time": "Zeit", "hints": "Hinweise", "mistakes": "Fehler",
-  "available": "Verfügbare Zahlen", "tapHint": "Zahl antippen und dann ein Feld wählen – oder ziehen.", "reveal": "Feld aufdecken",
+  "available": "Verfügbare Zahlen", "tapHint": "Zahl antippen und dann ein Feld wählen – oder ziehen. Vorgegebene Felder lassen sich leeren.", "reveal": "Feld aufdecken",
   "rule": "Algorithmus-Regel", "ruleTitle": "Tipp zur Methode", "ruleOdd": "Bei ungeraden Größen startet die 1 oben in der Mitte. Gehe diagonal nach rechts oben; ist das Feld belegt, gehe eine Zeile nach unten.",
   "ruleDoubly": "Bei durch vier teilbaren Größen werden die Zahlen der markierten Diagonalmuster gespiegelt.",
   "ruleSingly": "Bei einfach geraden Größen werden vier ungerade Teilquadrate erzeugt und ausgewählte Spalten getauscht.",
-  "selectCell": "Wähle ein freies Feld für den Hinweis.", "reset": "Neu starten", "back": "Zurück", "victory": "Quadrat vollendet!",
+  "selectCell": "Wähle ein freies Feld für den Hinweis.", "check": "Quadrat prüfen", "fillAll": "Fülle zuerst alle Felder aus.",
+  "checkFailed": "Das Quadrat ist noch nicht magisch.", "invalidRows": "Falsche Reihen", "invalidColumns": "Falsche Spalten", "invalidDiagonals": "Falsche Diagonalen",
+  "emptyBoard": "Vorgegebene Felder leeren", "reset": "Neu starten", "back": "Zurück", "victory": "Quadrat vollendet!",
   "victoryText": "Alle Reihen, Spalten und Diagonalen sind im Gleichgewicht.", "score": "Punkte", "playAgain": "Nochmal spielen",
   "mainMenu": "Hauptmenü", "formula": "Grundwert − Zeit − Hinweise − Fehler", "totalTime": "Gesamtspielzeit", "language": "Sprache"
 }

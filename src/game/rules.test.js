@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateMagicSquare } from './generators'
-import { currentElapsed, isSolvedBoard, placementCreatesMistake } from './rules'
+import { currentElapsed, isSolvedBoard, validateBoard } from './rules'
 
 describe('game rules', () => {
   it('accepts a valid rotated magic square instead of one hidden arrangement only', () => {
@@ -14,11 +14,21 @@ describe('game rules', () => {
     expect(isSolvedBoard(generateMagicSquare(3), [2])).toBe(false)
   })
 
-  it('counts a mistake only when a completed affected line has the wrong sum', () => {
-    const partial = [[8, 1, null], [null, 5, null], [null, null, 2]]
-    expect(placementCreatesMistake(partial, 0, 1)).toBe(false)
-    partial[0][2] = 5
-    expect(placementCreatesMistake(partial, 0, 2)).toBe(true)
+  it('waits until every number is placed before validating', () => {
+    const partial = [[8, 1, null], [3, 5, 7], [4, 9, 2]]
+    expect(validateBoard(partial, [6])).toMatchObject({ complete: false, total: 0 })
+  })
+
+  it('counts every invalid row, column and main diagonal', () => {
+    const invalid = [[8, 3, 6], [1, 5, 7], [4, 9, 2]]
+    expect(validateBoard(invalid, [])).toEqual({
+      complete: true,
+      valid: false,
+      invalidRows: [0, 1],
+      invalidColumns: [0, 1],
+      invalidDiagonals: [],
+      total: 4,
+    })
   })
 
   it('derives elapsed time from the actual start timestamp', () => {

@@ -6,17 +6,23 @@ export function isSolvedBoard(board, pool) {
     && isMagicSquare(board)
 }
 
-export function placementCreatesMistake(board, row, col) {
-  const target = magicConstant(board.length)
-  const isInvalidCompleteLine = (values) => values.every(Number.isInteger)
-    && values.reduce((sum, value) => sum + value, 0) !== target
+export function validateBoard(board, pool) {
+  if (pool.length > 0 || board.some((row) => row.some((value) => !Number.isInteger(value)))) {
+    return { complete: false, valid: false, invalidRows: [], invalidColumns: [], invalidDiagonals: [], total: 0 }
+  }
 
-  if (isInvalidCompleteLine(board[row])) return true
-  if (isInvalidCompleteLine(board.map((line) => line[col]))) return true
-  if (row === col && isInvalidCompleteLine(board.map((line, index) => line[index]))) return true
-  if (row + col === board.length - 1
-    && isInvalidCompleteLine(board.map((line, index) => line[board.length - 1 - index]))) return true
-  return false
+  const target = magicConstant(board.length)
+  const hasWrongSum = (values) => values.reduce((sum, value) => sum + value, 0) !== target
+  const invalidRows = board.map((row, index) => hasWrongSum(row) ? index : null).filter(Number.isInteger)
+  const invalidColumns = Array.from({ length: board.length }, (_, col) =>
+    hasWrongSum(board.map((row) => row[col])) ? col : null).filter(Number.isInteger)
+  const invalidDiagonals = [
+    hasWrongSum(board.map((row, index) => row[index])) ? 'main' : null,
+    hasWrongSum(board.map((row, index) => row[board.length - 1 - index])) ? 'secondary' : null,
+  ].filter(Boolean)
+  const total = invalidRows.length + invalidColumns.length + invalidDiagonals.length
+
+  return { complete: true, valid: total === 0 && isMagicSquare(board), invalidRows, invalidColumns, invalidDiagonals, total }
 }
 
 export function currentElapsed(game, now = Date.now()) {

@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createPuzzle } from '../game/generators'
-import { currentElapsed, isSolvedBoard, placementCreatesMistake } from '../game/rules'
+import { currentElapsed, validateBoard } from '../game/rules'
 
 const newProfile = (name) => ({
   id: crypto.randomUUID(), name: name.trim(), completedSizes: [], highScores: {}, totalTime: 0,
@@ -28,7 +28,7 @@ export const useGameStore = create(persist((set) => ({
   }),
   startGame: (size) => {
     const puzzle = createPuzzle(size)
-    set({ game: { size, ...puzzle, selected: null, hints: 0, mistakes: 0, elapsed: 0, startedAt: Date.now(), status: 'playing' } })
+    set({ game: { size, ...puzzle, selected: null, hints: 0, mistakes: 0, feedback: null, elapsed: 0, startedAt: Date.now(), status: 'playing' } })
   },
   tick: () => set((state) => state.game?.status === 'playing'
     ? { game: { ...state.game, elapsed: currentElapsed(state.game) } } : state),
@@ -44,19 +44,28 @@ export const useGameStore = create(persist((set) => ({
     board[row][col] = value
     const pool = game.pool.filter((item) => item !== value)
     if (previous != null) pool.push(previous)
-    const mistakes = game.mistakes + (placementCreatesMistake(board, row, col) ? 1 : 0)
-    const complete = isSolvedBoard(board, pool)
-    const updated = { ...game, board, pool, mistakes, elapsed: currentElapsed(game), selected: null, status: complete ? 'won' : 'playing' }
-    if (!complete) return { game: updated }
-    return completeGameState(state, updated)
+    return { game: { ...game, board, pool, feedback: null, selected: null } }
   }),
   clearCell: (row, col) => set((state) => {
     const game = state.game
-    if (!game || game.fixed.includes(row * game.size + col) || game.board[row][col] == null) return state
+    if (!game || game.status !== 'playing' || game.board[row][col] == null) return state
     const board = game.board.map((line) => [...line])
     const value = board[row][col]
+    const index = row * game.size + col
     board[row][col] = null
-    return { game: { ...game, board, pool: [...game.pool, value], selected: value } }
+    return { game: { ...game, board, fixed: game.fixed.filter((item) => item !== index), pool: [...game.pool, value], selected: value, feedback: null } }
+  }),
+  clearPrefilled: () => set((state) => {
+    const game = state.game
+    if (!game || game.status !== 'playing' || game.fixed.length === 0) return state
+    const fixed = new Set(game.fixed)
+    const returned = []
+    const board = game.board.map((row, r) => row.map((value, c) => {
+      if (!fixed.has(r * game.size + c)) return value
+      returned.push(value)
+      return null
+    }))
+    return { game: { ...game, board, fixed: [], pool: [...game.pool, ...returned], selected: null, feedback: null } }
   }),
   revealHint: (row, col) => set((state) => {
     const game = state.game
@@ -85,17 +94,24 @@ export const useGameStore = create(persist((set) => ({
     board[targetRow][targetCol] = correct
     let pool = game.pool.filter((value) => value !== correct)
     if (previous != null && previous !== correct) pool = [...pool, previous]
-    const complete = isSolvedBoard(board, pool)
-    const updated = { ...game, board, pool, hints: game.hints + 1, elapsed: currentElapsed(game), selected: null, status: complete ? 'won' : 'playing' }
-    return complete ? completeGameState(state, updated) : { game: updated }
+    return { game: { ...game, board, pool, hints: game.hints + 1, feedback: null, selected: null } }
   }),
   consumeRuleHint: () => set((state) => state.game?.status === 'playing'
     ? { game: { ...state.game, hints: state.game.hints + 1 } } : state),
+  checkSolution: () => set((state) => {
+    const game = state.game
+    if (!game || game.status !== 'playing') return state
+    const result = validateBoard(game.board, game.pool)
+    if (!result.complete) return { game: { ...game, feedback: { type: 'incomplete' } } }
+    if (!result.valid) return { game: { ...game, mistakes: result.total, feedback: { type: 'invalid', ...result } } }
+    const completed = { ...game, elapsed: currentElapsed(game), feedback: { type: 'success' }, status: 'won' }
+    return completeGameState(state, completed)
+  }),
   resetGame: () => set((state) => {
     if (!state.game) return state
     const profiles = recordAbandonedTime(state)
     const puzzle = createPuzzle(state.game.size)
-    return { profiles, game: { size: state.game.size, ...puzzle, selected: null, hints: 0, mistakes: 0, elapsed: 0, startedAt: Date.now(), status: 'playing' } }
+    return { profiles, game: { size: state.game.size, ...puzzle, selected: null, hints: 0, mistakes: 0, feedback: null, elapsed: 0, startedAt: Date.now(), status: 'playing' } }
   }),
   leaveGame: () => set((state) => state.game
     ? { profiles: recordAbandonedTime(state), game: null } : state),

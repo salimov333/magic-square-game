@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useShallow } from 'zustand/react/shallow'
-import { ArrowLeft, Eye, Lightbulb, RotateCcw, Sparkles } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Eraser, Eye, Lightbulb, RotateCcw, Sparkles } from 'lucide-react'
 import { useGameStore } from '../store/useGameStore'
 import { useTranslation } from '../i18n'
 import { magicConstant } from '../game/generators'
@@ -21,15 +21,18 @@ export function GameBoard({ onBack }) {
     selected: state.game.selected,
     hints: state.game.hints,
     mistakes: state.game.mistakes,
+    feedback: state.game.feedback,
     status: state.game.status,
     score: state.game.score,
   } : null))
-  const { selectNumber, placeNumber, clearCell, revealHint, consumeRuleHint, resetGame } = useGameStore(useShallow((state) => ({
+  const { selectNumber, placeNumber, clearCell, clearPrefilled, revealHint, consumeRuleHint, checkSolution, resetGame } = useGameStore(useShallow((state) => ({
     selectNumber: state.selectNumber,
     placeNumber: state.placeNumber,
     clearCell: state.clearCell,
+    clearPrefilled: state.clearPrefilled,
     revealHint: state.revealHint,
     consumeRuleHint: state.consumeRuleHint,
+    checkSolution: state.checkSolution,
     resetGame: state.resetGame,
   })))
   const [hintCell, setHintCell] = useState(null)
@@ -43,8 +46,8 @@ export function GameBoard({ onBack }) {
   const ruleKey = game.size % 2 ? 'ruleOdd' : game.size % 4 === 0 ? 'ruleDoubly' : 'ruleSingly'
   const drop = (event, row, col) => { event.preventDefault(); const value = Number(event.dataTransfer.getData('text/plain')); placeNumber(row, col, value) }
   const cellClick = (row, col, fixed) => {
-    if (fixed) return
-    if (game.selected != null) placeNumber(row, col)
+    if (fixed) clearCell(row, col)
+    else if (game.selected != null) placeNumber(row, col)
     else if (game.board[row][col] != null) clearCell(row, col)
     setHintCell([row, col])
   }
@@ -56,20 +59,38 @@ export function GameBoard({ onBack }) {
         <div className="board-and-sums"><div className="game-grid" style={{ '--n': game.size, '--cell': cellSize }} dir="ltr">
           {game.board.map((row, r) => row.map((value, c) => {
             const fixed = fixedSet.has(r * game.size + c)
-            const correct = value != null && value === game.solution[r][c]
             const selectedForHint = hintCell?.[0] === r && hintCell?.[1] === c
-            return <motion.button key={`${r}-${c}`} className={`game-cell ${fixed ? 'prefilled' : ''} ${correct && !fixed ? 'correct' : ''} ${selectedForHint ? 'hint-selected' : ''}`} onClick={() => cellClick(r, c, fixed)} onDragOver={(e) => e.preventDefault()} onDrop={(e) => drop(e, r, c)} whileTap={!fixed ? { scale: .92 } : {}} aria-label={`cell ${r + 1}, ${c + 1}${value == null ? '' : `: ${value}`}`}>{value}</motion.button>
-          }))}</div><div className="row-sums">{lineSums.map((sum, i) => <span className={sum === magicConstant(game.size) ? 'valid' : ''} key={i}>{sum}</span>)}</div></div>
-        <div className="column-sums" style={{ '--n': game.size, '--cell': cellSize }}>{columnSums.map((sum, i) => <span className={sum === magicConstant(game.size) ? 'valid' : ''} key={i}>{sum}</span>)}</div>
+            return <motion.button key={`${r}-${c}`} className={`game-cell ${fixed ? 'prefilled' : ''} ${selectedForHint ? 'hint-selected' : ''}`} onClick={() => cellClick(r, c, fixed)} onDragOver={(e) => e.preventDefault()} onDrop={(e) => drop(e, r, c)} whileTap={{ scale: .92 }} aria-label={`cell ${r + 1}, ${c + 1}${value == null ? '' : `: ${value}`}`}>{value}</motion.button>
+          }))}</div><div className="row-sums">{lineSums.map((sum, i) => <span className={validationClass(game.feedback, 'invalidRows', i)} key={i}>{sum}</span>)}</div></div>
+        <div className="column-sums" style={{ '--n': game.size, '--cell': cellSize }}>{columnSums.map((sum, i) => <span className={validationClass(game.feedback, 'invalidColumns', i)} key={i}>{sum}</span>)}</div>
       </section>
-      <aside className="game-panel"><div className="panel-heading"><div><span className="eyebrow">{t('available')}</span><p>{t('tapHint')}</p></div><button className="icon-button" onClick={resetGame} title={t('reset')}><RotateCcw size={18} /></button></div>
+      <aside className="game-panel"><div className="panel-heading"><div><span className="eyebrow">{t('available')}</span><p>{t('tapHint')}</p></div><div className="panel-tools"><button className="icon-button" onClick={clearPrefilled} title={t('emptyBoard')} aria-label={t('emptyBoard')} disabled={game.fixed.length === 0}><Eraser size={18} /></button><button className="icon-button" onClick={resetGame} title={t('reset')} aria-label={t('reset')}><RotateCcw size={18} /></button></div></div>
         <div className="number-pool" dir="ltr">{game.pool.map((number) => <motion.button layout key={number} draggable onDragStart={(e) => e.dataTransfer.setData('text/plain', number)} onClick={() => selectNumber(number)} className={game.selected === number ? 'selected' : ''}>{number}</motion.button>)}</div>
+        <button className="primary-button check-button" onClick={checkSolution}><CheckCircle2 size={19} /> {t('check')}</button>
+        <ValidationFeedback feedback={game.feedback} t={t} />
         <div className="hint-actions"><button onClick={() => revealHint(hintCell?.[0], hintCell?.[1])}><Eye size={18} /><span><strong>{t('reveal')}</strong><small>−300</small></span></button><button onClick={() => { consumeRuleHint(); setRuleOpen(true) }}><Lightbulb size={18} /><span><strong>{t('rule')}</strong><small>−300</small></span></button></div>
       </aside>
     </div>
     <AnimatePresence>{ruleOpen && <div className="modal-backdrop" onMouseDown={() => setRuleOpen(false)}><motion.div className="rule-modal" initial={{ scale: .95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(e) => e.stopPropagation()}><span className="rule-icon"><Lightbulb /></span><h2>{t('ruleTitle')}</h2><p>{t(ruleKey)}</p><button className="primary-button" onClick={() => setRuleOpen(false)}>{t('next')}</button></motion.div></div>}</AnimatePresence>
     {game.status === 'won' && <Victory t={t} game={game} onAgain={resetGame} onMenu={onBack} />}
   </main>
+}
+
+function validationClass(feedback, field, index) {
+  if (feedback?.type !== 'invalid') return ''
+  return feedback[field].includes(index) ? 'invalid' : 'valid'
+}
+
+function ValidationFeedback({ feedback, t }) {
+  if (!feedback) return null
+  if (feedback.type === 'incomplete') return <p className="validation-feedback incomplete" role="status">{t('fillAll')}</p>
+  if (feedback.type !== 'invalid') return null
+  return <div className="validation-feedback invalid" role="status" aria-live="polite">
+    <strong>{t('checkFailed')}</strong>
+    <span>{t('invalidRows')}: {feedback.invalidRows.length}</span>
+    <span>{t('invalidColumns')}: {feedback.invalidColumns.length}</span>
+    <span>{t('invalidDiagonals')}: {feedback.invalidDiagonals.length}</span>
+  </div>
 }
 
 function TimerStat({ label, active }) {
