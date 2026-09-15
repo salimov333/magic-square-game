@@ -28,7 +28,7 @@ header { height: 78px; display:flex; align-items:center; justify-content:space-b
 .intro-screen { min-height:100vh; display:grid; place-items:center; overflow:hidden; position:relative; }
 .intro-screen .top-actions { position:absolute; top:22px; inset-inline-end:clamp(1rem,5vw,5rem); z-index:2; }
 .intro-content { display:flex; align-items:center; flex-direction:column; text-align:center; position:relative; z-index:1; padding:2rem; }
-.intro-description{width:min(620px,calc(100vw - 2rem));margin-bottom:1.35rem}.intro-description strong{color:#d9d5ff;font-size:1.05rem}.intro-description p{margin:.5rem 0 0;color:var(--muted);font-size:.88rem;line-height:1.65}.intro-logo{margin-bottom:1rem}
+.intro-description{width:min(620px,calc(100vw - 2rem));margin-bottom:1.35rem}.intro-description strong{color:#d9d5ff;font-size:1.05rem}.intro-description p{margin:.5rem 0 0;color:var(--muted);font-size:.88rem;line-height:1.65}.intro-logo{position:relative;top:-.4rem;margin-bottom:1rem}
 .intro-content h1 { margin:.4rem 0; font-size:clamp(2.7rem,7vw,5.8rem); letter-spacing:-.065em; line-height:1; background:linear-gradient(100deg,#fff 20%,#bfb7ff 60%,#67e6dc); -webkit-background-clip:text; color:transparent; }
 .intro-content .lead { color:var(--muted); font-size:clamp(1rem,2vw,1.2rem); margin:.5rem 0 2rem; }
 .ambient { position:absolute; width:38vw; aspect-ratio:1; border-radius:50%; filter:blur(90px); opacity:.13; }
