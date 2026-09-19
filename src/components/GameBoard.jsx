@@ -100,5 +100,10 @@ function TimerStat({ label, active }) {
 }
 
 function Victory({ t, game, onAgain, onMenu }) {
-  return <div className="modal-backdrop victory-backdrop"><div className="confetti" aria-hidden="true">{Array.from({ length: 28 }, (_, i) => <i key={i} style={{ '--i': i, '--x': `${(i * 37) % 100}%` }} />)}</div><motion.section className="victory-card" initial={{ scale: .75, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' }}><motion.div className="victory-icon" animate={{ rotate: [0, -8, 8, 0] }}><Sparkles /></motion.div><span className="eyebrow">{game.size} × {game.size}</span><h1>{t('victory')}</h1><p>{t('victoryText')}</p><div className="score-box"><small>{t('score')}</small><strong>{game.score.toLocaleString()}</strong><span>{t('formula')}</span></div><div className="victory-actions"><button className="primary-button" onClick={onAgain}>{t('playAgain')}</button><button className="secondary-button" onClick={onMenu}>{t('mainMenu')}</button></div></motion.section></div>
+  return <div className="modal-backdrop victory-backdrop"><div className="confetti" aria-hidden="true">{Array.from({ length: 28 }, (_, i) => <i key={i} style={{
+    '--x': `${(i * 37) % 100}%`,
+    '--hue': (i * 47) % 360,
+    '--fall-duration': `${2.5 + (i % 5) * .3}s`,
+    '--fall-delay': `${(i % 8) * -.3}s`,
+  }} />)}</div><motion.section className="victory-card" initial={{ scale: .75, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' }}><motion.div className="victory-icon" animate={{ rotate: [0, -8, 8, 0] }}><Sparkles /></motion.div><span className="eyebrow">{game.size} × {game.size}</span><h1>{t('victory')}</h1><p>{t('victoryText')}</p><div className="score-box"><small>{t('score')}</small><strong>{game.score.toLocaleString()}</strong><span>{t('formula')}</span></div><div className="victory-actions"><button className="primary-button" onClick={onAgain}>{t('playAgain')}</button><button className="secondary-button" onClick={onMenu}>{t('mainMenu')}</button></div></motion.section></div>
 }

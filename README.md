@@ -41,7 +41,7 @@ Play the current production version on [GitHub Pages](https://salimov333.github.
 
 - The main menu shows completion progress across all ten grid sizes.
 - The combined score is the sum of the player's best score for each grid size.
-- A completed square displays its score and a celebration animation.
+- A completed square displays its score and a celebration animation whose particle values are passed through standards-compliant CSS custom properties.
 - The interface is available in German, English and Arabic with full RTL support.
 - Layouts are responsive across desktop, tablet and mobile, including safe-area-aware tutorial controls.
 
