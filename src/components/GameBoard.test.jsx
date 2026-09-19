@@ -32,11 +32,44 @@ describe('GameBoard', () => {
     expect(container.querySelectorAll('.game-cell')).toHaveLength(9)
     expect(container.querySelectorAll('.game-cell.prefilled')).toHaveLength(3)
     expect(container.querySelectorAll('.game-cell.fixed')).toHaveLength(0)
-    expect(container.querySelector('.game-grid').style.getPropertyValue('--n')).toBe('3')
+    expect(container.querySelector('.board-matrix').style.getPropertyValue('--n')).toBe('3')
+    expect(container.querySelector('.board-matrix').getAttribute('dir')).toBe('ltr')
+    expect(container.querySelector('.board-viewport').getAttribute('dir')).toBe('ltr')
     expect(container.querySelector('.check-button')).not.toBeNull()
 
     fireEvent.click(container.querySelector('.game-cell.prefilled'))
     expect(useGameStore.getState().game.fixed).toHaveLength(2)
     expect(useGameStore.getState().game.pool).toHaveLength(7)
+  })
+
+  it.each([3, 11, 12])('renders a unified responsive matrix for the %ix%i board', (size) => {
+    const solution = generateMagicSquare(size)
+    useGameStore.setState({
+      language: 'ar',
+      game: {
+        size,
+        solution,
+        board: solution.map((row) => row.map(() => null)),
+        fixed: [],
+        pool: solution.flat(),
+        selected: null,
+        hints: 0,
+        mistakes: 0,
+        feedback: null,
+        elapsed: 0,
+        startedAt: Date.now(),
+        status: 'playing',
+      },
+    })
+
+    const { container } = render(<GameBoard onBack={() => {}} />)
+    const matrix = container.querySelector('.board-matrix')
+    expect(container.querySelectorAll('.game-cell')).toHaveLength(size * size)
+    expect(container.querySelectorAll('.row-sums span')).toHaveLength(size)
+    expect(container.querySelectorAll('.column-sums span')).toHaveLength(size)
+    expect(matrix.style.getPropertyValue('--n')).toBe(String(size))
+    expect(Number.parseFloat(matrix.style.getPropertyValue('--board-min'))).toBeGreaterThan(0)
+    expect(Number.parseFloat(matrix.style.getPropertyValue('--board-max'))).toBeGreaterThan(0)
+    expect(matrix.getAttribute('dir')).toBe('ltr')
   })
 })

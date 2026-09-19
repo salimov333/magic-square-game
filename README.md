@@ -43,6 +43,9 @@ Play the current production version on [GitHub Pages](https://salimov333.github.
 - The combined score is the sum of the player's best score for each grid size.
 - A completed square displays its score and a celebration animation whose particle values are passed through standards-compliant CSS custom properties.
 - The interface is available in German, English and Arabic with full RTL support.
+- The board, row sums and column sums share one responsive matrix, so their tracks stay aligned from `3×3` through `12×12`.
+- Cell sizes follow the board container rather than the browser viewport. The number panel moves below the board when horizontal space is limited, avoiding unnecessary scrollbars on desktop and tablet layouts.
+- On very narrow phones, a contained horizontal fallback preserves a readable minimum cell size and keeps every column reachable without clipping. The mathematical board remains left-to-right inside the Arabic RTL interface.
 - Layouts are responsive across desktop, tablet and mobile, including safe-area-aware tutorial controls.
 
 ## Magic-square rules
@@ -175,7 +178,7 @@ All player data remains on the current browser and device. Clearing browser site
 
 ## Tests and quality checks
 
-The current suite contains `30` automated tests across `7` test files. Coverage includes:
+The current suite contains `33` automated tests across `7` test files. Coverage includes:
 
 - generated magic squares for every supported size;
 - uniqueness and magic-constant validation;
@@ -187,7 +190,8 @@ The current suite contains `30` automated tests across `7` test files. Coverage 
 - first-run player creation and per-player onboarding;
 - combined score display;
 - profile deletion confirmation;
-- tutorial interaction and board rendering.
+- tutorial interaction and board rendering;
+- unified responsive board structure for `3×3`, `11×11` and `12×12`, including stable mathematical direction inside the Arabic interface.
 
 The deployment workflow also runs ESLint, audits production dependencies and builds the production bundle before publishing.
 

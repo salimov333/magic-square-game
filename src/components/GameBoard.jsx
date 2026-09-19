@@ -42,7 +42,13 @@ export function GameBoard({ onBack }) {
   const columnSums = useMemo(() => game ? Array.from({ length: game.size }, (_, col) =>
     game.board.reduce((sum, row) => sum + (row[col] || 0), 0)) : [], [game])
   if (!game) return null
-  const cellSize = `clamp(1.65rem, ${Math.min(8.5, 72 / game.size)}vw, ${game.size <= 5 ? 4.8 : 3.8}rem)`
+  const maximumCellSize = game.size <= 5 ? 76.8 : 60.8
+  const minimumCellSize = 26.4
+  const boardSizing = {
+    '--n': game.size,
+    '--board-min': `${game.size * minimumCellSize + (game.size - 1) * 2 + 52}px`,
+    '--board-max': `${game.size * maximumCellSize + (game.size - 1) * 5 + 68}px`,
+  }
   const ruleKey = game.size % 2 ? 'ruleOdd' : game.size % 4 === 0 ? 'ruleDoubly' : 'ruleSingly'
   const drop = (event, row, col) => { event.preventDefault(); const value = Number(event.dataTransfer.getData('text/plain')); placeNumber(row, col, value) }
   const cellClick = (row, col, fixed) => {
@@ -56,13 +62,19 @@ export function GameBoard({ onBack }) {
     <section className="game-stats"><div><small>{game.size} × {game.size}</small><strong>{t('grid')}</strong></div><div className="magic-stat"><span>Σ</span><div><small>{t('magicSum')}</small><strong>{magicConstant(game.size)}</strong></div></div><TimerStat label={t('time')} active={game.status === 'playing'} /><div><small>{t('hints')}</small><strong>{game.hints}</strong></div><div><small>{t('mistakes')}</small><strong>{game.mistakes}</strong></div></section>
     <div className="game-layout">
       <section className="board-wrap">
-        <div className="board-and-sums"><div className="game-grid" style={{ '--n': game.size, '--cell': cellSize }} dir="ltr">
-          {game.board.map((row, r) => row.map((value, c) => {
-            const fixed = fixedSet.has(r * game.size + c)
-            const selectedForHint = hintCell?.[0] === r && hintCell?.[1] === c
-            return <motion.button key={`${r}-${c}`} className={`game-cell ${fixed ? 'prefilled' : ''} ${selectedForHint ? 'hint-selected' : ''}`} onClick={() => cellClick(r, c, fixed)} onDragOver={(e) => e.preventDefault()} onDrop={(e) => drop(e, r, c)} whileTap={{ scale: .92 }} aria-label={`cell ${r + 1}, ${c + 1}${value == null ? '' : `: ${value}`}`}>{value}</motion.button>
-          }))}</div><div className="row-sums">{lineSums.map((sum, i) => <span className={validationClass(game.feedback, 'invalidRows', i)} key={i}>{sum}</span>)}</div></div>
-        <div className="column-sums" style={{ '--n': game.size, '--cell': cellSize }}>{columnSums.map((sum, i) => <span className={validationClass(game.feedback, 'invalidColumns', i)} key={i}>{sum}</span>)}</div>
+        <div className="board-viewport" dir="ltr">
+          <div className="board-matrix" style={boardSizing} dir="ltr">
+            <div className="game-grid">
+              {game.board.map((row, r) => row.map((value, c) => {
+                const fixed = fixedSet.has(r * game.size + c)
+                const selectedForHint = hintCell?.[0] === r && hintCell?.[1] === c
+                return <motion.button key={`${r}-${c}`} className={`game-cell ${fixed ? 'prefilled' : ''} ${selectedForHint ? 'hint-selected' : ''}`} onClick={() => cellClick(r, c, fixed)} onDragOver={(e) => e.preventDefault()} onDrop={(e) => drop(e, r, c)} whileTap={{ scale: .92 }} aria-label={`cell ${r + 1}, ${c + 1}${value == null ? '' : `: ${value}`}`}>{value}</motion.button>
+              }))}
+            </div>
+            <div className="row-sums">{lineSums.map((sum, i) => <span className={validationClass(game.feedback, 'invalidRows', i)} key={i}>{sum}</span>)}</div>
+            <div className="column-sums">{columnSums.map((sum, i) => <span className={validationClass(game.feedback, 'invalidColumns', i)} key={i}>{sum}</span>)}</div>
+          </div>
+        </div>
       </section>
       <aside className="game-panel"><div className="panel-heading"><div><span className="eyebrow">{t('available')}</span><p>{t('tapHint')}</p></div><div className="panel-tools"><button className="icon-button" onClick={clearPrefilled} title={t('emptyBoard')} aria-label={t('emptyBoard')} disabled={game.fixed.length === 0}><Eraser size={18} /></button><button className="icon-button" onClick={resetGame} title={t('reset')} aria-label={t('reset')}><RotateCcw size={18} /></button></div></div>
         <div className="number-pool" dir="ltr">{game.pool.map((number) => <motion.button layout key={number} draggable onDragStart={(e) => e.dataTransfer.setData('text/plain', number)} onClick={() => selectNumber(number)} className={game.selected === number ? 'selected' : ''}>{number}</motion.button>)}</div>
